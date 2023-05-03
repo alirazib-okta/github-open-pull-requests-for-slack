@@ -73,6 +73,16 @@ func GetRepoOwner() string {
 	}
 }
 
+func GetSlackWebhookUrl() string {
+	url := os.Getenv("SLACK_WEBHOOK_URL")
+	if len(url) != 0 {
+		return url
+	} else {
+		fmt.Println("Slack webhook URL not found in env variable.")
+		return ""
+	}
+}
+
 func GetAwsRegion() string {
 	region := os.Getenv("AWS_REGION_NAME")
 	if len(region) != 0 {

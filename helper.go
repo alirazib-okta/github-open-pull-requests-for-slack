@@ -3,10 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -77,7 +79,45 @@ func getPullRequests(repo string, authToken string) []PullRequest {
 	return combinedPullRequests
 }
 
-// Main function.
+func PostToSlackWebhook(message string) (string, error) {
+	// Post message to Slack webhook URL
+	slackWebhookURL := GetSlackWebhookUrl()
+	if len(slackWebhookURL) == 0 {
+		log.Fatalf("Slack webhook cannot be empty.")
+	} else {
+		fmt.Println("Posting to Slack webhook: " + slackWebhookURL)
+	}
+	if len(message) == 0 {
+		log.Fatalf("Payload content cannot be empty.")
+	} else {
+		fmt.Printf("Length of payload: %d\n", len(message))
+	}
+
+	//payload := url.Values{}
+	//payload.Set("text", message)
+	//req, err := http.NewRequest("POST", slackWebhookURL, strings.NewReader(payload.Encode()))
+	payload := fmt.Sprintf("{\"text\":\"%s\"}", message)
+	req, err := http.NewRequest("POST", slackWebhookURL, strings.NewReader(payload))
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return "", err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println("Error making request:", err)
+		return "", err
+	}
+	defer resp.Body.Close()
+	bodyString, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error making request:", err)
+		return "", err
+	}
+	return string(bodyString), nil
+}
+
+// Function to get the list of PRs as a formatted string for Slack.
 func GetListOfPRs() (string, error) {
 	var wg sync.WaitGroup
 	repos := GetRepos()
