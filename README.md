@@ -16,11 +16,16 @@ Add a main() function like the following.
 ```
 func main() {
 	os.Setenv("GITHUB_ACCESS_TOKEN", "<access_token>") // for testing purposes.
+	os.Setenv("REPOS", "<repo1,repo2>")
+	os.Setenv("TEAMMATES", "<username1,username2>")
+	os.Setenv("REPO_OWNER", "<username>")
+	os.Setenv("SLACK_WEBHOOK_URL", "<https://httpbin.org/post>")
 	response, err := GetListOfPRs()
 	if err != nil {
-		fmt.Println(fmt.Sprint(err))
+		fmt.Println(fmt.Sprint(err) + ": ")
 		return
 	}
+	response, err = PostToSlackWebhook(response)
 	fmt.Println(response)
 }
 ```
@@ -31,8 +36,11 @@ func main() {
 AWS_REGION_NAME = a region name
 [e.g. "us-east-1"]
 
-AWS_SECRET_NAME = <Secret name stored in Secrets Manager>
+AWS_SECRET_TOKEN = <Secret name stored in Secrets Manager>
 [The secret name is the entry in AWS Secrets Manager which stores the github authorization token that is used during API calls]
+
+AWS_SECRET_SLACK_WEBHOOK_URL = <Secret name stored in Secrets Manager>
+[The secret name is the entry in AWS Secrets Manager which stores the Slack webhook URL]
 
 NUM_PAGES = <Maximum pages to pull from a repo>
 [Github API retrieves 100 pull requests at a time, referred as page. So if NUM_PAGES=7, then in total 700 pull requests will be retrieved.]
