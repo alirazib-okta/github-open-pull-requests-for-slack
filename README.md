@@ -33,6 +33,9 @@ func main() {
 ## Environment variables to be set:
 
 ```
+TEST_MODE = true
+[if yes, then the results will be printed directly without posting to Slack.]
+
 AWS_REGION_NAME = a region name
 [e.g. "us-east-1"]
 
