@@ -17,6 +17,7 @@ type PullRequest struct {
 	Title      string `json:"title"`
 	URL        string `json:"html_url"`
 	Created_At string `json:"created_at"`
+	Draft      bool   `json:"draft"`
 	User       struct {
 		Login string `json:"login"`
 	}
@@ -79,6 +80,29 @@ func getPullRequests(repo string, authToken string) []PullRequest {
 	return combinedPullRequests
 }
 
+// Main entrypoint.
+func Helper() (string, error) {
+	// Get the list of PRs
+	listOfPRs, err := GetListOfPRs()
+	if err != nil {
+		return "", err
+	}
+
+	// Post to slack webhook if not TEST_MODE
+	if IsEnvExist("TEST_MODE") {
+		// just print and return the result, no need to post on slack.
+		fmt.Println(listOfPRs)
+		return listOfPRs, nil
+	} else {
+		resp, err := PostToSlackWebhook(listOfPRs)
+		if err != nil {
+			return "", err
+		}
+		return resp, nil
+	}
+}
+
+// Function to post the message to the Slack webhook.
 func PostToSlackWebhook(message string) (string, error) {
 	// Post message to Slack webhook URL
 	slackWebhookURL := GetSlackWebhookUrl()
@@ -152,10 +176,12 @@ func GetListOfPRs() (string, error) {
 	}
 
 	// Format response body for Slack
-	var responseBody string
+	responseBody := "AppPlatformPR -> here's the list of open PRs:\n"
 	for _, pr := range results {
-		days := ConvertTimeToDay(pr.Created_At)
-		responseBody += fmt.Sprintf("* %s <%s> %s Created %d day(s) ago\n", pr.Title, pr.URL, pr.User.Login, days)
+		if !pr.Draft {
+			days := ConvertTimeToDay(pr.Created_At)
+			responseBody += fmt.Sprintf("* %s <%s> %s Created %d day(s) ago\n", pr.Title, pr.URL, pr.User.Login, days)
+		}
 	}
 
 	return string(responseBody), nil

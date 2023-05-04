@@ -20,6 +20,13 @@ func Contains(s []string, str string) bool {
 	return false
 }
 
+func IsEnvExist(key string) bool {
+	if _, ok := os.LookupEnv(key); ok {
+		return true
+	}
+	return false
+}
+
 func SplitAndTrim(input string, separator string) []string {
 	slc := strings.Split(input, separator)
 	for i := range slc {
