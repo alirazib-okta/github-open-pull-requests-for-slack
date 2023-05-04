@@ -50,6 +50,19 @@ func GetRepos() []string {
 	}
 }
 
+func GetSlackWebhookUrl() string {
+	// First see if the env variable is defined.
+	webhookVar := os.Getenv("SLACK_WEBHOOK_URL")
+	if len(webhookVar) != 0 {
+		fmt.Println("Webhook found in env variable.")
+		return webhookVar
+	} else {
+		// Try from aws secrets manager.
+		fmt.Println("Webhook not found in env variable, trying the alternative.")
+		return GetSecret(GetAwsSecretNameWebhook(), GetAwsRegion())
+	}
+}
+
 func GetAuthToken() string {
 	// First see if the env variable is defined.
 	tokenVar := os.Getenv("GITHUB_ACCESS_TOKEN")
@@ -59,7 +72,27 @@ func GetAuthToken() string {
 	} else {
 		// Try from aws secrets manager.
 		fmt.Println("Token not found in env variable, trying the alternative.")
-		return GetSecret()
+		return GetSecret(GetAwsSecretNameToken(), GetAwsRegion())
+	}
+}
+
+func GetAwsSecretNameWebhook() string {
+	secretName := os.Getenv("AWS_SECRET_SLACK_WEBHOOK_URL")
+	if len(secretName) != 0 {
+		return secretName
+	} else {
+		fmt.Println("Webhook URL not found in env variable.")
+		return ""
+	}
+}
+
+func GetAwsSecretNameToken() string {
+	secretName := os.Getenv("AWS_SECRET_TOKEN")
+	if len(secretName) != 0 {
+		return secretName
+	} else {
+		fmt.Println("Token name not found in env variable.")
+		return ""
 	}
 }
 
@@ -73,32 +106,12 @@ func GetRepoOwner() string {
 	}
 }
 
-func GetSlackWebhookUrl() string {
-	url := os.Getenv("SLACK_WEBHOOK_URL")
-	if len(url) != 0 {
-		return url
-	} else {
-		fmt.Println("Slack webhook URL not found in env variable.")
-		return ""
-	}
-}
-
 func GetAwsRegion() string {
 	region := os.Getenv("AWS_REGION_NAME")
 	if len(region) != 0 {
 		return region
 	} else {
 		fmt.Println("AWS region not found in env variable.")
-		return ""
-	}
-}
-
-func GetAwsSecretName() string {
-	secretName := os.Getenv("AWS_SECRET_NAME")
-	if len(secretName) != 0 {
-		return secretName
-	} else {
-		fmt.Println("AWS secret name not found in env variable.")
 		return ""
 	}
 }

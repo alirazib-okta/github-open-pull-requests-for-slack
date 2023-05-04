@@ -85,7 +85,7 @@ func PostToSlackWebhook(message string) (string, error) {
 	if len(slackWebhookURL) == 0 {
 		log.Fatalf("Slack webhook cannot be empty.")
 	} else {
-		fmt.Println("Posting to Slack webhook: " + slackWebhookURL)
+		fmt.Println("Posting to Slack webhook.")
 	}
 	if len(message) == 0 {
 		log.Fatalf("Payload content cannot be empty.")

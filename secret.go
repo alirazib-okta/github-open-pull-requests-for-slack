@@ -9,10 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
 )
 
-func GetSecret() string {
-	secretName := GetAwsSecretName()
-	region := GetAwsRegion()
-
+func GetSecret(secretName, region string) string {
 	config, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(region))
 	if err != nil {
 		log.Fatal(err)
