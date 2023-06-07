@@ -11,9 +11,9 @@ import (
 var DefaultMaxNumberOfPages = 10 // max pages for each repo to retrieve
 var MaxResults = 100             // maximum entries in the final result
 
-func Contains(s []string, str string) bool {
-	for _, v := range s {
-		if v == str {
+func Contains(arr []string, str string) bool {
+	for _, substr := range arr {
+		if strings.Contains(str, substr) {
 			return true
 		}
 	}
@@ -136,7 +136,7 @@ func GetNumberOfPages() int {
 func FilterList(pullRequests []PullRequest, teammates []string) []PullRequest {
 	var filteredPullRequests []PullRequest
 	for _, v := range pullRequests {
-		if Contains(teammates, v.User.Login) {
+		if Contains(teammates, v.User.Html_Url) {
 			filteredPullRequests = append(filteredPullRequests, v)
 		}
 	}

@@ -19,7 +19,8 @@ type PullRequest struct {
 	Created_At string `json:"created_at"`
 	Draft      bool   `json:"draft"`
 	User       struct {
-		Login string `json:"login"`
+		Login    string `json:"login"`
+		Html_Url string `json:"html_url"`
 	}
 }
 
@@ -180,7 +181,8 @@ func GetListOfPRs() (string, error) {
 	for _, pr := range results {
 		if !pr.Draft {
 			days := ConvertTimeToDay(pr.Created_At)
-			responseBody += fmt.Sprintf("* %s <%s> %s Created %d day(s) ago\n", pr.Title, pr.URL, pr.User.Login, days)
+			responseBody += fmt.Sprintf("* %s <%s> %s Created %d day(s) ago\n",
+				pr.Title, pr.URL, strings.TrimPrefix(pr.User.Html_Url, "https://github.com/"), days)
 		}
 	}
 
